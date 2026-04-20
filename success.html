@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+        <div class="box"><div class="label">Время готовности</div><div class="value" id="prepTime">...</div></div>
+      </div>
+
+      <h3>Состав заказа</h3>
+      <ul id="orderItems"></ul>
+
+      <p>Телефон ресторана: <strong>010-5949-7681</strong></p>
+
+      <div class="actions">
+        <a class="btn" href="/order-status.html">Проверить статус</a>
+        <a class="btn secondary" href="/">Вернуться в меню</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function approvePayment() {
+      const params = new URLSearchParams(window.location.search);
+      const pgToken = params.get('pg_token');
+      const orderNumber = params.get('order') || localStorage.getItem('lastOrderNumber');
+      const phone = localStorage.getItem('lastOrderPhone');
+
+      document.getElementById('orderNumber').textContent = orderNumber || '-';
+
+      if (!orderNumber || !pgToken) {
+        document.getElementById('orderStatus').textContent = 'Не удалось подтвердить оплату';
+        return;
+      }
+
+      const approveRes = await fetch('/.netlify/functions/approve-kakaopay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderNumber, pgToken }),
+      });
+
+      const approveData = await approveRes.json();
+      if (!approveRes.ok) {
+        console.error(approveData);
+        document.getElementById('orderStatus').textContent = 'Ошибка подтверждения оплаты';
+        return;
+      }
+
+      if (!phone) return;
+
+      const statusRes = await fetch(`/.netlify/functions/get-order-status?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`);
+      const statusData = await statusRes.json();
+
+      if (!statusRes.ok || !statusData.order) return;
+
+      const order = statusData.order;
+      document.getElementById('orderAmount').textContent = `₩${Number(order.total_amount).toLocaleString('ko-KR')}`;
+      document.getElementById('prepTime').textContent = `${order.prep_minutes} мин`;
+      document.getElementById('orderStatus').textContent = 'Оплачен';
+
+      const itemsEl = document.getElementById('orderItems');
+      itemsEl.innerHTML = '';
+      (order.items || []).forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} x${item.qty}`;
+        itemsEl.appendChild(li);
+      });
+    }
+
+    approvePayment();
+  </script>
+</body>
+</html>

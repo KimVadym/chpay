@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chaikhona</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">Chaikhona</div>
+
+      <div class="header-actions">
+        <a
+          class="icon-btn luxury"
+          id="googleMapBtn"
+          href="#"
+          target="_blank"
+          aria-label="Google Map"
+          title="Google Map"
+        >
+          <i class="fa-solid fa-location-dot"></i>
+        </a>
+
+        <a
+          class="icon-btn luxury"
+          id="kakaoMapBtn"
+          href="#"
+          target="_blank"
+          aria-label="Kakao Map"
+          title="Kakao Map"
+        >
+          <i class="fa-solid fa-map-location-dot"></i>
+        </a>
+
+        <a
+          class="icon-btn luxury"
+          id="phoneBtn"
+          href="#"
+          aria-label="Телефон"
+          title="Телефон"
+        >
+          <i class="fa-solid fa-phone"></i>
+        </a>
+
+        <a
+          class="icon-btn luxury"
+          id="instagramBtn"
+          href="#"
+          target="_blank"
+          aria-label="Instagram"
+          title="Instagram"
+        >
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+
+        <div class="lang-switcher">
+          <button class="lang-btn active" data-lang="ru" type="button">RU</button>
+          <button class="lang-btn" data-lang="en" type="button">EN</button>
+          <button class="lang-btn" data-lang="kr" type="button">KR</button>
+        </div>
+
+        <button class="cart-button" id="cartOpenBtn" type="button">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span id="cartButtonText">Корзина</span>
+          <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sticky-menu">
+    <div class="container menu-row" id="topCategoryNav"></div>
+  </nav>
+
+  <main class="container main-content">
+    <section class="hero">
+      <div class="hero-badge">Premium Taste</div>
+      <h1>Вкус восточной кухни</h1>
+      <p>
+        На карточке спереди — фото, название и цена. Нажми на карточку,
+        чтобы увидеть вес, состав и описание.
+      </p>
+    </section>
+
+    <section class="cards-grid" id="menuGrid"></section>
+  </main>
+
+  <!-- Модалка продукта -->
+  <div class="modal hidden" id="productModal">
+    <div class="modal-overlay" data-close="productModal"></div>
+    <div class="modal-box">
+      <button class="modal-close" data-close="productModal" type="button">×</button>
+      <div id="productModalContent"></div>
+    </div>
+  </div>
+
+  <!-- Модалка корзины -->
+ <div class="modal hidden" id="cartModal">
+  <div class="modal-overlay" data-close="cartModal"></div>
+
+  <div class="modal-box cart-modal-box premium-cart-modal">
+    <button class="modal-close premium-close" data-close="cartModal" type="button">×</button>
+
+    <div class="premium-cart-head">
+      <div>
+        <div class="premium-cart-badge">Your order</div>
+        <h2 id="cartTitle">Корзина</h2>
+        <p class="premium-cart-subtitle">Проверьте заказ, укажите данные и выберите удобный способ оформления.</p>
+      </div>
+
+      <div class="premium-cart-summary">
+        <div class="premium-summary-chip">
+          <span>Позиции</span>
+          <strong id="cartCount">0</strong>
+        </div>
+        <div class="premium-summary-chip premium-summary-total">
+          <span id="totalLabel">Итого</span>
+          <strong id="cartTotal">₩0</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="premium-cart-layout">
+      <div class="premium-cart-left">
+        <div class="premium-block">
+          <div class="premium-block-title">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span>Ваши блюда</span>
+          </div>
+          <div id="cartItems" class="premium-cart-items"></div>
+        </div>
+      </div>
+
+      <div class="premium-cart-right">
+        <div class="premium-block premium-form-card">
+          <div class="premium-block-title">
+            <i class="fa-solid fa-user"></i>
+            <span>Данные клиента</span>
+          </div>
+
+          <div class="cart-customer-form premium-customer-form">
+            <div class="form-grid">
+              <label class="form-field">
+                <span>Имя</span>
+                <input
+                  type="text"
+                  id="customerName"
+                  placeholder="Введите имя"
+                  autocomplete="name"
+                />
+              </label>
+
+              <label class="form-field">
+                <span>Телефон</span>
+                <input
+                  type="tel"
+                  id="customerPhone"
+                  placeholder="010-0000-0000"
+                  autocomplete="tel"
+                />
+              </label>
+            </div>
+
+            <label class="form-field">
+              <span>Тип заказа</span>
+              <select id="deliveryType">
+                <option value="pickup">Самовывоз</option>
+                <option value="hall">В зал / к столу</option>
+                <option value="delivery">Доставка</option>
+              </select>
+            </label>
+
+            <label class="form-field">
+              <span>Комментарий</span>
+              <textarea
+                id="customerComment"
+                placeholder="Например: без лука, меньше острого"
+              ></textarea>
+            </label>
+          </div>
+        </div>
+
+        <div class="premium-block premium-actions-card">
+          <div class="premium-note">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>После оплаты клиент увидит номер заказа и статус на странице подтверждения.</span>
+          </div>
+
+          <div class="checkout-actions premium-checkout-actions">
+            <button class="order-btn premium-telegram-btn" id="orderBtn" type="button">
+              <i class="fa-brands fa-telegram"></i>
+              <span id="orderBtnText">Отправить в Telegram</span>
+            </button>
+
+            <button class="order-btn premium-kakaopay-btn" id="kakaoPayBtn" type="button">
+              <i class="fa-solid fa-credit-card"></i>
+              <span>Оплатить KakaoPay</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+ 
+
+  <!-- Сначала данные меню -->
+  <script src="./menu-data.js"></script>
+
+  <!-- Потом логика -->
+  <script src="./main.js"></script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/service-worker.js")
+        .then((registration) => {
+          console.log("Service Worker registered:", registration);
+        })
+        .catch((error) => {
+          console.log("Service Worker registration failed:", error);
+        });
+    });
+  }
+</script>
+
+</body>
+</html>

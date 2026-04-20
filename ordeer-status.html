@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+    .error { color: #a12929; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Проверить статус заказа</h1>
+      <p>Введите номер заказа и телефон.</p>
+      <input id="orderNumber" placeholder="Например: CH-20260419-4821" />
+      <input id="phone" placeholder="Телефон" />
+      <button id="checkBtn">Проверить</button>
+      <div id="error" class="error"></div>
+      <div id="result" class="result">
+        <p><strong>Номер заказа:</strong> <span id="rOrder"></span></p>
+        <p><strong>Статус:</strong> <span id="rStatus"></span></p>
+        <p><strong>Оплата:</strong> <span id="rPayment"></span></p>
+        <p><strong>Сумма:</strong> <span id="rAmount"></span></p>
+        <p><strong>Получение:</strong> <span id="rDelivery"></span></p>
+        <p><strong>Время готовности:</strong> <span id="rPrep"></span></p>
+        <div><strong>Заказ:</strong><ul id="rItems"></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('checkBtn').addEventListener('click', async () => {
+      const orderNumber = document.getElementById('orderNumber').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const errorEl = document.getElementById('error');
+      const resultEl = document.getElementById('result');
+      const itemsEl = document.getElementById('rItems');
+
+      errorEl.textContent = '';
+      resultEl.style.display = 'none';
+      itemsEl.innerHTML = '';
+
+      if (!orderNumber || !phone) {
+        errorEl.textContent = 'Введите номер заказа и телефон';
+        return;
+      }
+
+      const res = await fetch(`/.netlify/functions/get-order-status?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorEl.textContent = data.error || 'Заказ не найден';
+        return;
+      }
+
+      const order = data.order;
+      document.getElementById('rOrder').textContent = order.order_number;
+      document.getElementById('rStatus').textContent = order.status === 'paid' ? 'Оплачен' : order.status;
+      document.getElementById('rPayment').textContent = order.payment_status === 'paid' ? 'Оплачено' : order.payment_status;
+      document.getElementById('rAmount').textContent = `₩${Number(order.total_amount).toLocaleString('ko-KR')}`;
+      document.getElementById('rDelivery').textContent = order.delivery_type;
+      document.getElementById('rPrep').textContent = `${order.prep_minutes} мин`;
+
+      (order.items || []).forEach((item) => {
+        const li = document.createElement('li');
+        li.textContent = `${item.name} x${item.qty}`;
+        itemsEl.appendChild(li);
+      });
+
+      resultEl.style.display = 'block';
+    });
+  </script>
+</body>
+</html>
