@@ -221,9 +221,9 @@ a {
 .sticky-menu {
   position: sticky;
   top: var(--header-height);
-  z-index: 180;
-  backdrop-filter: blur(18px);
-  background: rgba(10, 11, 15, 0.78);
+  /* z-index: 180; */
+  /* backdrop-filter: blur(18px); */
+  /* background: rgba(10, 11, 15, 0.78); */
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -949,6 +949,7 @@ a {
     align-items: flex-end;
     gap: 10px;
     padding: 12px 0;
+    opacity: 0.3;
   }
 
   .menu-chip {
