@@ -42,7 +42,7 @@ window.MENU_DATA = [
           en: "Juicy lamb cooked on charcoal.",
           kr: "숯불에 구운 육즙 가득한 양고기"
         },
-        price: 13000,
+        price: 10,
         image: "./images/grill.png"
       },
       {
