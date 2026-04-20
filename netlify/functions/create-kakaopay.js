@@ -163,3 +163,44 @@ export async function handler(event) {
     return json(500, { error: error.message });
   }
 }
+
+
+/=========================================/ 
+try {
+  const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/ready', {
+    method: 'POST',
+    headers: {
+      Authorization: `SECRET_KEY ${process.env.KAKAOPAY_SECRET_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await response.text();
+  console.log('KakaoPay ready status:', response.status);
+  console.log('KakaoPay ready body:', text);
+
+  if (!response.ok) {
+    return {
+      statusCode: response.status,
+      body: JSON.stringify({
+        error: 'KakaoPay ready failed',
+        details: text,
+      }),
+    };
+  }
+
+  return {
+    statusCode: 200,
+    body: text,
+  };
+} catch (err) {
+  console.error('KakaoPay ready exception:', err);
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      error: 'KakaoPay ready failed',
+      details: err.message,
+    }),
+  };
+}
