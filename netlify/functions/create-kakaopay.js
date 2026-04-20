@@ -60,7 +60,7 @@ export async function handler(event) {
 
     const secretKey = process.env.KAKAOPAY_SECRET_KEY;
     const cid = process.env.KAKAOPAY_CID || 'TC0ONETIME';
-    const siteUrl = process.env.SITE_URL || 'https://choyhona.netlify.app';
+    const siteUrl = process.env.SITE_URL || 'https://chaihpay.netlify.app';
     const defaultPrepMinutes = Number(process.env.DEFAULT_PREP_MINUTES || 35);
 
     if (!secretKey) {
@@ -128,7 +128,16 @@ export async function handler(event) {
       }
     );
 
-    const kakaoData = await kakaoResponse.json();
+    const kakaoText = await kakaoResponse.text();
+    console.log('KakaoPay ready status:', kakaoResponse.status);
+    console.log('KakaoPay ready body:', kakaoText);
+
+    let kakaoData = {};
+    try {
+      kakaoData = JSON.parse(kakaoText);
+    } catch {
+      kakaoData = { raw: kakaoText };
+    }
 
     if (!kakaoResponse.ok) {
       await supabase
@@ -157,50 +166,14 @@ export async function handler(event) {
     return json(200, {
       success: true,
       orderNumber,
-      redirectUrl: kakaoData.next_redirect_pc_url || kakaoData.next_redirect_mobile_url,
+      redirectUrl:
+        kakaoData.next_redirect_pc_url || kakaoData.next_redirect_mobile_url,
     });
   } catch (error) {
-    return json(500, { error: error.message });
+    console.error('create-kakaopay error:', error);
+
+    return json(500, {
+      error: error.message || 'Server error',
+    });
   }
-}
-
-
-/=========================================/ 
-try {
-  const response = await fetch('https://open-api.kakaopay.com/online/v1/payment/ready', {
-    method: 'POST',
-    headers: {
-      Authorization: `SECRET_KEY ${process.env.KAKAOPAY_SECRET_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const text = await response.text();
-  console.log('KakaoPay ready status:', response.status);
-  console.log('KakaoPay ready body:', text);
-
-  if (!response.ok) {
-    return {
-      statusCode: response.status,
-      body: JSON.stringify({
-        error: 'KakaoPay ready failed',
-        details: text,
-      }),
-    };
-  }
-
-  return {
-    statusCode: 200,
-    body: text,
-  };
-} catch (err) {
-  console.error('KakaoPay ready exception:', err);
-  return {
-    statusCode: 500,
-    body: JSON.stringify({
-      error: 'KakaoPay ready failed',
-      details: err.message,
-    }),
-  };
 }
