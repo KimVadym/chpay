@@ -158,13 +158,15 @@ export async function handler(event) {
     }
 
     return json(200, {
-      success: true,
-      orderNumber: order.order_number,
-      status: 'paid',
-      paymentStatus: 'paid',
-      estimatedReadyAt: order.estimated_ready_at,
-      prepMinutes: order.prep_minutes,
-    });
+  success: true,
+  orderNumber: order.order_number,
+  status: 'paid',
+  paymentStatus: 'paid',
+  estimatedReadyAt: order.estimated_ready_at,
+  prepMinutes: order.prep_minutes,
+  totalAmount: order.total_amount,
+  items: order.items || [],
+});
   } catch (error) {
     console.error('approve-kakaopay error:', error);
     return json(500, { error: error.message || 'Server error' });

@@ -1,9 +1,122 @@
 <!DOCTYPE html>
-        <div class="box"><div class="label">Время готовности</div><div class="value" id="prepTime">...</div></div>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Оплата успешна</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 20px;
+      color: #111;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+    }
+
+    .status {
+      font-size: 18px;
+      margin-bottom: 18px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .box {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    ul {
+      padding-left: 18px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      padding: 12px 18px;
+      border-radius: 10px;
+      background: #111827;
+      color: #fff;
+    }
+
+    .btn.secondary {
+      background: #e5e7eb;
+      color: #111;
+    }
+
+    .muted {
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Спасибо за заказ</h1>
+      <div class="status" id="orderStatus">Проверяем оплату...</div>
+
+      <div class="grid">
+        <div class="box">
+          <div class="label">Номер заказа</div>
+          <div class="value" id="orderNumber">...</div>
+        </div>
+
+        <div class="box">
+          <div class="label">Сумма</div>
+          <div class="value" id="orderAmount">...</div>
+        </div>
+
+        <div class="box">
+          <div class="label">Время готовности</div>
+          <div class="value" id="prepTime">...</div>
+        </div>
       </div>
 
       <h3>Состав заказа</h3>
-      <ul id="orderItems"></ul>
+      <ul id="orderItems">
+        <li class="muted">Загрузка...</li>
+      </ul>
 
       <p>Телефон ресторана: <strong>010-5949-7681</strong></p>
 
@@ -15,54 +128,75 @@
   </div>
 
   <script>
-    async function approvePayment() {
+    async function loadSuccessPage() {
       const params = new URLSearchParams(window.location.search);
+      const orderNumber = params.get('order');
       const pgToken = params.get('pg_token');
-      const orderNumber = params.get('order') || localStorage.getItem('lastOrderNumber');
-      const phone = localStorage.getItem('lastOrderPhone');
 
-      document.getElementById('orderNumber').textContent = orderNumber || '-';
+      const orderNumberEl = document.getElementById('orderNumber');
+      const orderAmountEl = document.getElementById('orderAmount');
+      const prepTimeEl = document.getElementById('prepTime');
+      const orderStatusEl = document.getElementById('orderStatus');
+      const orderItemsEl = document.getElementById('orderItems');
+
+      orderNumberEl.textContent = orderNumber || '-';
 
       if (!orderNumber || !pgToken) {
-        document.getElementById('orderStatus').textContent = 'Не удалось подтвердить оплату';
+        orderStatusEl.textContent = 'Не хватает параметров оплаты';
+        orderItemsEl.innerHTML = '<li>Нет данных</li>';
         return;
       }
 
-      const approveRes = await fetch('/.netlify/functions/approve-kakaopay', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber, pgToken }),
-      });
+      try {
+        const approveRes = await fetch('/.netlify/functions/approve-kakaopay', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderNumber,
+            pgToken,
+          }),
+        });
 
-      const approveData = await approveRes.json();
-      if (!approveRes.ok) {
-        console.error(approveData);
-        document.getElementById('orderStatus').textContent = 'Ошибка подтверждения оплаты';
-        return;
+        const approveData = await approveRes.json();
+        console.log('approveData:', approveData);
+
+        if (!approveRes.ok) {
+          orderStatusEl.textContent = approveData.error || 'Ошибка подтверждения оплаты';
+          orderItemsEl.innerHTML = '<li>Не удалось загрузить заказ</li>';
+          return;
+        }
+
+        orderStatusEl.textContent = 'Оплата подтверждена';
+
+        orderAmountEl.textContent = approveData.totalAmount
+          ? `₩${Number(approveData.totalAmount).toLocaleString('ko-KR')}`
+          : '-';
+
+        prepTimeEl.textContent = approveData.prepMinutes
+          ? `${approveData.prepMinutes} мин`
+          : '-';
+
+        orderItemsEl.innerHTML = '';
+
+        if (Array.isArray(approveData.items) && approveData.items.length) {
+          approveData.items.forEach((item) => {
+            const li = document.createElement('li');
+            li.textContent = `${item.name} x${item.qty}`;
+            orderItemsEl.appendChild(li);
+          });
+        } else {
+          orderItemsEl.innerHTML = '<li>Нет данных</li>';
+        }
+      } catch (error) {
+        console.error('success page error:', error);
+        orderStatusEl.textContent = 'Ошибка страницы';
+        orderItemsEl.innerHTML = '<li>Не удалось загрузить заказ</li>';
       }
-
-      if (!phone) return;
-
-      const statusRes = await fetch(`/.netlify/functions/get-order-status?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`);
-      const statusData = await statusRes.json();
-
-      if (!statusRes.ok || !statusData.order) return;
-
-      const order = statusData.order;
-      document.getElementById('orderAmount').textContent = `₩${Number(order.total_amount).toLocaleString('ko-KR')}`;
-      document.getElementById('prepTime').textContent = `${order.prep_minutes} мин`;
-      document.getElementById('orderStatus').textContent = 'Оплачен';
-
-      const itemsEl = document.getElementById('orderItems');
-      itemsEl.innerHTML = '';
-      (order.items || []).forEach((item) => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} x${item.qty}`;
-        itemsEl.appendChild(li);
-      });
     }
 
-    approvePayment();
+    loadSuccessPage();
   </script>
 </body>
 </html>
