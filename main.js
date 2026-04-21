@@ -741,3 +741,18 @@ function setLanguage(lang) {
 // =====================================================
 bindEvents();
 setLanguage("ru");
+
+
+/---------=============----------==========----------=======------/ 
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      await navigator.serviceWorker.register('/service-worker.js');
+      console.log('Service Worker registered');
+    } catch (error) {
+      console.error('Service Worker registration failed:', error);
+    }
+  });
+}
+/=======------------0000000000----------0000000=================/ 

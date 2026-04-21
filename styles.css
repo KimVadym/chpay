@@ -1116,3 +1116,36 @@ a {
 
 
 }
+/* ======----------------================----------========== */
+/*======= 0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0-0======== */
+/* Шапка для телефона */
+/* .header {
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(8px);
+  padding: 10px 12px;
+} */
+
+/* Нижняя фиксированная кнопка заказа */
+
+/* .mobile-checkout-bar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 10px;
+  z-index: 1200;
+}
+
+.mobile-checkout-bar .btn {
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .mobile-checkout-bar {
+    display: none;
+  }
+} */
