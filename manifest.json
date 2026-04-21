@@ -1,6 +1,6 @@
 {
-  "name": "Chaikhona",
-  "short_name": "Chaikhona",
+  "name": "CHPAY",
+  "short_name": "CHPAY",
   "description": "Меню и заказ блюд в Chaikhona",
   "start_url": "/",
   "display": "standalone",
