@@ -605,9 +605,9 @@ a {
 }
 
 .premium-cart-head {
-  display: flex;
+  /* display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: 20px; */
   padding: 28px 28px 20px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
