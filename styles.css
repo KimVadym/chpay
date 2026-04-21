@@ -1060,22 +1060,6 @@ a {
     gap: 10px;
   }
 }
-
-@media (max-width: 780px) {
-.topbar-inner{
-    display: flex;
-    flex-wrap: wrap;
-}
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-
-
  .cart-button {
     display: inline-flex;
     position: fixed;
@@ -1114,4 +1098,21 @@ a {
     justify-content: center;
     padding: 0 6px;
   }
+
+@media (max-width: 780px) {
+.topbar-inner{
+    display: flex;
+    flex-wrap: wrap;
+}
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+
+
+
 }
