@@ -1,5 +1,76 @@
 <!DOCTYPE html>
-    .error { color: #a12929; margin-top: 12px; }
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Статус заказа</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      padding: 20px;
+    }
+
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    p {
+      margin-top: 0;
+      color: #444;
+    }
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 14px 18px;
+      border: none;
+      border-radius: 12px;
+      background: #111827;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .error {
+      color: #a12929;
+      margin-top: 12px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f3f4f6;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
   </style>
 </head>
 <body>
@@ -7,10 +78,14 @@
     <div class="card">
       <h1>Проверить статус заказа</h1>
       <p>Введите номер заказа и телефон.</p>
+
       <input id="orderNumber" placeholder="Например: CH-20260419-4821" />
       <input id="phone" placeholder="Телефон" />
+
       <button id="checkBtn">Проверить</button>
+
       <div id="error" class="error"></div>
+
       <div id="result" class="result">
         <p><strong>Номер заказа:</strong> <span id="rOrder"></span></p>
         <p><strong>Статус:</strong> <span id="rStatus"></span></p>
@@ -40,29 +115,41 @@
         return;
       }
 
-      const res = await fetch(`/.netlify/functions/get-order-status?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`);
-      const data = await res.json();
+      try {
+        const res = await fetch(
+          `/.netlify/functions/get-order-status?orderNumber=${encodeURIComponent(orderNumber)}&phone=${encodeURIComponent(phone)}`
+        );
 
-      if (!res.ok) {
-        errorEl.textContent = data.error || 'Заказ не найден';
-        return;
+        const data = await res.json();
+
+        if (!res.ok) {
+          errorEl.textContent = data.error || 'Заказ не найден';
+          return;
+        }
+
+        const order = data.order;
+
+        document.getElementById('rOrder').textContent = order.order_number || '-';
+        document.getElementById('rStatus').textContent =
+          order.status === 'paid' ? 'Оплачен' : order.status || '-';
+        document.getElementById('rPayment').textContent =
+          order.payment_status === 'paid' ? 'Оплачено' : order.payment_status || '-';
+        document.getElementById('rAmount').textContent =
+          `₩${Number(order.total_amount || 0).toLocaleString('ko-KR')}`;
+        document.getElementById('rDelivery').textContent = order.delivery_type || '-';
+        document.getElementById('rPrep').textContent = `${order.prep_minutes || '-'} мин`;
+
+        (order.items || []).forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = `${item.name} x${item.qty}`;
+          itemsEl.appendChild(li);
+        });
+
+        resultEl.style.display = 'block';
+      } catch (error) {
+        console.error(error);
+        errorEl.textContent = 'Ошибка загрузки статуса заказа';
       }
-
-      const order = data.order;
-      document.getElementById('rOrder').textContent = order.order_number;
-      document.getElementById('rStatus').textContent = order.status === 'paid' ? 'Оплачен' : order.status;
-      document.getElementById('rPayment').textContent = order.payment_status === 'paid' ? 'Оплачено' : order.payment_status;
-      document.getElementById('rAmount').textContent = `₩${Number(order.total_amount).toLocaleString('ko-KR')}`;
-      document.getElementById('rDelivery').textContent = order.delivery_type;
-      document.getElementById('rPrep').textContent = `${order.prep_minutes} мин`;
-
-      (order.items || []).forEach((item) => {
-        const li = document.createElement('li');
-        li.textContent = `${item.name} x${item.qty}`;
-        itemsEl.appendChild(li);
-      });
-
-      resultEl.style.display = 'block';
     });
   </script>
 </body>
