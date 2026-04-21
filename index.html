@@ -21,11 +21,18 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="container topbar-inner">
-      <div class="brand">Chaikhona</div>
+    <nav class="container topbar-inner">
+      <a class="brand" href="#">Chaihana</a>
 
-      <div class="header-actions">
-        <a
+
+        <ul class="lang-switcher">
+         <li> <button class="lang-btn active" data-lang="ru" type="button">RU</button></li>
+         <li> <button class="lang-btn" data-lang="en" type="button">EN</button></li>
+         <li> <button class="lang-btn" data-lang="kr" type="button">KR</button></li>
+        </ul>
+
+      <ul class="header-actions">
+        <li> <a
           class="icon-btn luxury"
           id="googleMapBtn"
           href="#"
@@ -34,9 +41,9 @@
           title="Google Map"
         >
           <i class="fa-solid fa-location-dot"></i>
-        </a>
-
-        <a
+        </a></li>
+       
+<li> <a
           class="icon-btn luxury"
           id="kakaoMapBtn"
           href="#"
@@ -45,9 +52,9 @@
           title="Kakao Map"
         >
           <i class="fa-solid fa-map-location-dot"></i>
-        </a>
-
-        <a
+        </a></li>
+       
+<li><a
           class="icon-btn luxury"
           id="phoneBtn"
           href="#"
@@ -55,9 +62,9 @@
           title="Телефон"
         >
           <i class="fa-solid fa-phone"></i>
-        </a>
-
-        <a
+        </a></li>
+        
+<li> <a
           class="icon-btn luxury"
           id="instagramBtn"
           href="#"
@@ -66,21 +73,14 @@
           title="Instagram"
         >
           <i class="fa-brands fa-instagram"></i>
-        </a>
+        </a></li>
+        </ul>
 
-        <div class="lang-switcher">
-          <button class="lang-btn active" data-lang="ru" type="button">RU</button>
-          <button class="lang-btn" data-lang="en" type="button">EN</button>
-          <button class="lang-btn" data-lang="kr" type="button">KR</button>
-        </div>
+      
 
-        <button class="cart-button" id="cartOpenBtn" type="button">
-          <i class="fa-solid fa-bag-shopping"></i>
-          <span id="cartButtonText">Корзина</span>
-          <span class="cart-badge" id="cartCount">0</span>
-        </button>
-      </div>
-    </div>
+       
+     
+    </nav>
   </header>
 
   <nav class="sticky-menu">
@@ -99,6 +99,13 @@
 
     <section class="cards-grid" id="menuGrid"></section>
   </main>
+
+  <!-- Кнопка открытия корзины -->
+  <button class="cart-button" id="cartOpenBtn" type="button">
+    <i class="fa-solid fa-bag-shopping"></i>
+    <span id="cartButtonText">Корзина</span>
+    <span class="cart-badge" id="cartCount">0</span>
+  </button>
 
   <!-- Модалка продукта -->
   <div class="modal hidden" id="productModal">
