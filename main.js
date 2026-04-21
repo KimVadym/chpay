@@ -192,9 +192,9 @@ function sanitizePhone(phone = "") {
   return String(phone).replace(/[^\d+]/g, "").trim();
 }
 
-function showToast(message) {
-  alert(message);
-}
+// function showToast(message) {
+//   alert(message);
+// }
 
 function findItemById(itemId) {
   for (const section of menuSource) {
