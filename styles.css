@@ -1066,8 +1066,8 @@ a {
     right: 12px;
     bottom: 14px;
     z-index: 260;
-    width: 56px;
-    height: 56px;
+    width: 66px;
+    height: 66px;
     border: none;
     border-radius: 18px;
     background: linear-gradient(180deg, #f0c56b, var(--accent));
