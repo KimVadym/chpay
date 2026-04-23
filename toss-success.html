@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toss Payment Success</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #111; padding: 20px; }
+    .wrap { max-width: 720px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 18px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 12px; margin: 20px 0; }
+    .box { background: #f3f4f6; border-radius: 14px; padding: 14px; }
+    .label { color: #666; font-size: 13px; margin-bottom: 8px; }
+    .value { font-size: 20px; font-weight: 700; }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+    .btn { display: inline-block; text-decoration: none; padding: 12px 18px; border-radius: 12px; background: #111827; color: #fff; }
+    .btn.secondary { background: #e5e7eb; color: #111; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Спасибо за заказ</h1>
+      <div id="statusText"><strong>Проверяем оплату...</strong></div>
+
+      <div class="grid">
+        <div class="box">
+          <div class="label">Номер заказа</div>
+          <div class="value" id="orderNumber">...</div>
+        </div>
+        <div class="box">
+          <div class="label">Сумма</div>
+          <div class="value" id="orderAmount">...</div>
+        </div>
+        <div class="box">
+          <div class="label">Время готовности</div>
+          <div class="value" id="prepTime">...</div>
+        </div>
+      </div>
+
+      <h3>Состав заказа</h3>
+      <ul id="orderItems"><li>Загрузка...</li></ul>
+
+      <p>Телефон ресторана: <strong>010-5949-7681</strong></p>
+
+      <div class="actions">
+        <a class="btn" href="/order-status.html">Проверить статус</a>
+        <a class="btn secondary" href="/">Вернуться в меню</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadTossSuccess() {
+      const params = new URLSearchParams(window.location.search);
+      const paymentKey = params.get('paymentKey');
+      const orderId = params.get('orderId');
+      const amount = params.get('amount');
+
+      const statusEl = document.getElementById('statusText');
+      const orderNumberEl = document.getElementById('orderNumber');
+      const orderAmountEl = document.getElementById('orderAmount');
+      const prepTimeEl = document.getElementById('prepTime');
+      const orderItemsEl = document.getElementById('orderItems');
+
+      orderNumberEl.textContent = orderId || '-';
+
+      if (!paymentKey || !orderId || !amount) {
+        statusEl.textContent = 'Не хватает параметров оплаты';
+        return;
+      }
+
+      try {
+        const res = await fetch('/.netlify/functions/confirm-toss-payment', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paymentKey, orderId, amount }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          statusEl.textContent = data.error || 'Ошибка подтверждения оплаты';
+          return;
+        }
+
+        statusEl.textContent = 'Оплата подтверждена';
+        orderAmountEl.textContent = `₩${Number(data.totalAmount || 0).toLocaleString('ko-KR')}`;
+        prepTimeEl.textContent = `${data.prepMinutes || '-'} мин`;
+
+        orderItemsEl.innerHTML = '';
+        (data.items || []).forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = `${item.name} x${item.qty}`;
+          orderItemsEl.appendChild(li);
+        });
+
+        if (!data.items || data.items.length === 0) {
+          orderItemsEl.innerHTML = '<li>Нет данных</li>';
+        }
+      } catch (error) {
+        console.error(error);
+        statusEl.textContent = 'Ошибка страницы';
+      }
+    }
+
+    loadTossSuccess();
+  </script>
+</body>
+</html>

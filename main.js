@@ -743,7 +743,7 @@ bindEvents();
 setLanguage("ru");
 
 
-/---------=============----------==========----------=======------/ 
+// /---------=============----------==========----------=======------/ 
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
@@ -755,4 +755,105 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
-/=======------------0000000000----------0000000=================/ 
+// /=======------------0000000000----------0000000=================/ 
+
+// /=========------------toss-payments--------------==============/ 
+
+
+
+function sanitizePhone(phone = '') {
+  return String(phone).replace(/[^\d+]/g, '').trim();
+}
+
+function getTossCheckoutPayload() {
+ const customerName = document.getElementById('customerName')?.value?.trim() || '';
+const phone = document.getElementById('customerPhone')?.value?.trim() || '';
+const deliveryType = document.getElementById('deliveryType')?.value || 'pickup';
+const comment = document.getElementById('customerComment')?.value?.trim() || '';
+
+  const items = (window.cart || []).map((item) => ({
+    id: item.id,
+    name: item.name,
+    qty: item.qty,
+    price: item.price
+  }));
+
+  const totalAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  return {
+    customerName,
+    phone,
+    deliveryType,
+    comment,
+    items,
+    totalAmount
+  };
+}
+
+async function startTossPayment() {
+  try {
+    const payload = getTossCheckoutPayload();
+
+    if (!payload.customerName) {
+      alert('Введите имя');
+      return;
+    }
+
+    if (!payload.phone) {
+      alert('Введите телефон');
+      return;
+    }
+
+    if (!Array.isArray(payload.items) || payload.items.length === 0) {
+      alert('Корзина пуста');
+      return;
+    }
+
+    if (!payload.totalAmount || payload.totalAmount <= 0) {
+      alert('Неверная сумма заказа');
+      return;
+    }
+
+    const createRes = await fetch('/.netlify/functions/create-toss-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    const createData = await createRes.json();
+
+    if (!createRes.ok) {
+      alert(createData.error || 'Не удалось создать заказ');
+      return;
+    }
+
+    localStorage.setItem('lastOrderNumber', createData.orderNumber);
+    localStorage.setItem('lastOrderPhone', payload.phone);
+
+    const tossPayments = TossPayments(window.APP_CONFIG.TOSS_CLIENT_KEY);
+    const customerKey =
+      (window.crypto?.randomUUID?.() || `guest_${Date.now()}_${Math.random().toString(36).slice(2)}`);
+
+    const payment = tossPayments.payment({ customerKey });
+
+    await payment.requestPayment({
+      method: 'CARD',
+      amount: {
+        value: createData.totalAmount,
+        currency: 'KRW',
+      },
+      orderId: createData.orderNumber,
+      orderName: createData.orderName,
+      successUrl: `${window.location.origin}/toss-success.html`,
+      failUrl: `${window.location.origin}/toss-fail.html`,
+      customerName: payload.customerName,
+    });
+  } catch (error) {
+    console.error('startTossPayment error:', error);
+    alert(error.message || 'Ошибка оплаты через Toss');
+  }
+}
+
+document.getElementById('tossPayBtn')?.addEventListener('click', startTossPayment);
+
+// /-------================----------==============--------------/ 

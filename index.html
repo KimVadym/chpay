@@ -2,34 +2,34 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Chaikhona</title>
-<meta name="theme-color" content="#8b4513" />
-<link rel="manifest" href="/manifest.json" />
-<link rel="apple-touch-icon" href="/icons/icon-192.png" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="CHPAY" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+  <meta name="theme-color" content="#8b4513" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="CHPAY" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
     rel="stylesheet"
   />
-
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
   />
- 
-
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
     <nav class="container topbar-inner">
-      <a class="brand" href="#">Chaihana</a>
+      <a class="brand" href="#">Chaikhona</a>
 
 
         <ul class="lang-switcher">
@@ -41,7 +41,7 @@
       <ul class="header-actions">
         <li> <a
           class="icon-btn luxury"
-          id="(googleMapBtn)"
+          id="googleMapBtn"
           href="https://maps.app.goo.gl/LhyxyPawVsJX5ot3A"
           target="_blank"
           aria-label="Google Map"
@@ -52,7 +52,7 @@
        
 <li> <a
           class="icon-btn luxury"
-          id="(kakaoMapBtn)"
+          id="kakaoMapBtn"
           href="https://kko.to/VnOXc9FSgh"
           target="_blank"
           aria-label="Kakao Map"
@@ -110,7 +110,7 @@
   <!-- Кнопка открытия корзины -->
   <button class="cart-button  pulse-cart" id="cartOpenBtn" type="button">
     <i class="fa-solid fa-bag-shopping"></i>
-    <span id="cartButtonText">КорзинKа</span>
+    <span id="cartButtonText">Корзина</span>
     <span class="cart-badge" id="cartCount">0</span>
   </button>
 
@@ -215,17 +215,39 @@
             <span>После оплаты клиент увидит номер заказа и статус на странице подтверждения.</span>
           </div>
 
-          <div class="checkout-actions premium-checkout-actions">
+<div class="payment-actions">
+  <button id="telegramBtn" class="pay-btn telegram-btn" type="button">
+    <span class="pay-btn__icon">✈</span>
+    <span>Отправить в Telegram</span>
+  </button>
+
+  <button id="kakaoPayBtn" class="pay-btn kakao-btn" type="button">
+    <span class="pay-btn__icon">₩</span>
+    <span>Оплатить KakaoPay</span>
+  </button>
+
+  <button id="tossPayBtn" class="pay-btn toss-btn is-featured" type="button">
+  <span class="pay-btn__icon">T</span>
+  <span>Оплатить через Toss</span>
+</button>
+</div>
+
+
+
+          <!-- <div class="checkout-actions premium-checkout-actions">
             <button class="order-btn premium-telegram-btn" id="orderBtn" type="button">
               <i class="fa-brands fa-telegram"></i>
               <span id="orderBtnText">Отправить в Telegram</span>
             </button>
+            <button id="tossPayBtn" class="pay-btn toss-btn" type="button">
+  Оплатить через Toss
+</button>
 
             <button class="order-btn premium-kakaopay-btn" id="kakaoPayBtn" type="button">
               <i class="fa-solid fa-credit-card"></i>
               <span>Оплатить KakaoPay</span>
             </button>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -254,6 +276,11 @@
     });
   }
 </script>
-
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script>
+  window.APP_CONFIG = {
+    TOSS_CLIENT_KEY: 'test_ck_GjLJoQ1aVZXxA6EDqE5J8w6KYe2R'
+  };
+</script>
 </body>
 </html>
