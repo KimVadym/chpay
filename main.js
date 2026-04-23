@@ -766,19 +766,24 @@ function sanitizePhone(phone = '') {
 }
 
 function getTossCheckoutPayload() {
- const customerName = document.getElementById('customerName')?.value?.trim() || '';
-const phone = document.getElementById('customerPhone')?.value?.trim() || '';
-const deliveryType = document.getElementById('deliveryType')?.value || 'pickup';
-const comment = document.getElementById('customerComment')?.value?.trim() || '';
+  const customerName = document.getElementById('customerName')?.value?.trim() || '';
+  const phone = sanitizePhone(document.getElementById('customerPhone')?.value || '');
+  const deliveryType = document.getElementById('deliveryType')?.value || 'pickup';
+  const comment = document.getElementById('customerComment')?.value?.trim() || '';
 
-  const items = (window.cart || []).map((item) => ({
+  const items = cart.map((item) => ({
     id: item.id,
     name: item.name,
     qty: item.qty,
     price: item.price
   }));
 
-  const totalAmount = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const totalAmount = items.reduce((sum, item) => {
+    return sum + Number(item.price) * Number(item.qty);
+  }, 0);
+
+  console.log('cart:', cart);
+  console.log('items for toss:', items);
 
   return {
     customerName,
