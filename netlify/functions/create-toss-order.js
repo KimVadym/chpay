@@ -21,6 +21,14 @@ function sanitizePhone(phone = '') {
   return String(phone).replace(/[^\d+]/g, '').trim();
 }
 
+function getItemName(name) {
+  if (typeof name === 'string') return name;
+  if (name && typeof name === 'object') {
+    return name.ru || name.en || name.kr || 'Item';
+  }
+  return 'Item';
+}
+
 export async function handler(event) {
   if (event.httpMethod !== 'POST') {
     return json(405, { error: 'Method not allowed' });
@@ -55,6 +63,13 @@ export async function handler(event) {
       return json(400, { error: 'Неверная сумма заказа' });
     }
 
+    const normalizedItems = items.map((item) => ({
+      ...item,
+      name: getItemName(item?.name),
+      qty: Number(item?.qty || 0),
+      price: Number(item?.price || 0),
+    }));
+
     const orderNumber = makeOrderNumber();
     const estimatedReadyAt = new Date(Date.now() + 35 * 60 * 1000).toISOString();
 
@@ -63,39 +78,4 @@ export async function handler(event) {
       .insert({
         order_number: orderNumber,
         customer_name: customerName.trim(),
-        phone: cleanPhone,
-        delivery_type: deliveryType,
-        comment,
-        items,
-        total_amount: Number(totalAmount),
-        currency: 'KRW',
-        status: 'pending_payment',
-        payment_status: 'pending',
-        prep_minutes: 35,
-        estimated_ready_at: estimatedReadyAt,
-        payment_provider: 'toss',
-      });
-
-    if (insertError) {
-      return json(500, {
-        error: 'Failed to save order',
-        details: insertError.message,
-      });
-    }
-
-    const orderName =
-      items.length === 1
-        ? items[0].name
-        : `${items[0].name} 외 ${items.length - 1}건`;
-
-    return json(200, {
-      success: true,
-      orderNumber,
-      totalAmount: Number(totalAmount),
-      orderName,
-    });
-  } catch (error) {
-    console.error('create-toss-order error:', error);
-    return json(500, { error: error.message || 'Server error' });
-  }
-}
+        phone: cleanPhone,  

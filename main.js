@@ -862,3 +862,13 @@ async function startTossPayment() {
 document.getElementById('tossPayBtn')?.addEventListener('click', startTossPayment);
 
 // /-------================----------==============--------------/ 
+
+const items = cart.map((item) => ({
+  id: item.id,
+  name:
+    typeof item.name === 'string'
+      ? item.name
+      : item.name?.ru || item.name?.en || item.name?.kr || 'Item',
+  qty: item.qty,
+  price: item.price
+}));
