@@ -21,7 +21,7 @@
 //   );
 // });
 
-const CACHE_NAME = 'chpay-v4';
+const CACHE_NAME = 'chpay-v5';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',
