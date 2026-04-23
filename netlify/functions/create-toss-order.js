@@ -36,6 +36,7 @@ export async function handler(event) {
 
   try {
     const body = JSON.parse(event.body || '{}');
+
     const {
       customerName,
       phone,
@@ -64,7 +65,7 @@ export async function handler(event) {
     }
 
     const normalizedItems = items.map((item) => ({
-      ...item,
+      id: item?.id ?? null,
       name: getItemName(item?.name),
       qty: Number(item?.qty || 0),
       price: Number(item?.price || 0),
@@ -78,4 +79,41 @@ export async function handler(event) {
       .insert({
         order_number: orderNumber,
         customer_name: customerName.trim(),
-        phone: cleanPhone,  
+        phone: cleanPhone,
+        delivery_type: deliveryType,
+        comment,
+        items: normalizedItems,
+        total_amount: Number(totalAmount),
+        currency: 'KRW',
+        status: 'pending_payment',
+        payment_status: 'pending',
+        prep_minutes: 35,
+        estimated_ready_at: estimatedReadyAt,
+        payment_provider: 'toss',
+      });
+
+    if (insertError) {
+      return json(500, {
+        error: 'Failed to save order',
+        details: insertError.message,
+      });
+    }
+
+    const firstItemName = normalizedItems[0]?.name || 'Item';
+
+    const orderName =
+      normalizedItems.length === 1
+        ? firstItemName
+        : `${firstItemName} 외 ${normalizedItems.length - 1}건`;
+
+    return json(200, {
+      success: true,
+      orderNumber,
+      totalAmount: Number(totalAmount),
+      orderName,
+    });
+  } catch (error) {
+    console.error('create-toss-order error:', error);
+    return json(500, { error: error.message || 'Server error' });
+  }
+}

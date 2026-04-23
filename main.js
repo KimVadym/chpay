@@ -771,12 +771,15 @@ function getTossCheckoutPayload() {
   const deliveryType = document.getElementById('deliveryType')?.value || 'pickup';
   const comment = document.getElementById('customerComment')?.value?.trim() || '';
 
-  const items = cart.map((item) => ({
-    id: item.id,
-    name: item.name,
-    qty: item.qty,
-    price: item.price
-  }));
+ const items = cart.map((item) => ({
+  id: item.id,
+  name:
+    typeof item.name === 'string'
+      ? item.name
+      : item.name?.ru || item.name?.en || item.name?.kr || 'Item',
+  qty: item.qty,
+  price: item.price
+}));
 
   const totalAmount = items.reduce((sum, item) => {
     return sum + Number(item.price) * Number(item.qty);
